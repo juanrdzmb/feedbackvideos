@@ -1,0 +1,100 @@
+{
+  "settings": {
+    "title": "Model Arena v2",
+    "subtitle": "Ayúdanos a elegir los mejores modelos de visión artificial para Powerlifting",
+    "instagram": "@setbridge",
+    "webhook_url": ""
+  },
+  "exercises": [
+    { "id": "bench", "label": "Press de Banca" },
+    { "id": "squat", "label": "Sentadilla" },
+    { "id": "deadlift", "label": "Peso Muerto" }
+  ],
+  "default_exercise": "bench",
+  "rounds": [
+    {
+      "id": "bar_hub",
+      "name": "Seguimiento de Barra",
+      "badge": "Barra",
+      "question": "¿Qué modelo rastrea mejor la barra sin perderla ni saltar a los discos?",
+      "hint": "Fíjate en la estabilidad de la caja durante el recorrido completo.",
+      "videos": {
+        "bench": "familias/bar_hub_bench.mp4",
+        "squat": "familias/bar_hub_squat.mp4",
+        "deadlift": "familias/bar_hub_deadlift.mp4"
+      },
+      "candidates": [
+        { "id": "hub_v2l", "name": "hub_v2l", "tag": "v2 last", "color": "#ff9f1c", "badge_color": "#ff9f1c" },
+        { "id": "hub_v2b", "name": "hub_v2b", "tag": "v2 best", "color": "#00f2fe", "badge_color": "#00f2fe" },
+        { "id": "hub_v1", "name": "hub_v1", "tag": "v1 best", "color": "#00f59b", "badge_color": "#00f59b" },
+        { "id": "hub_pwai", "name": "hub_pwai", "tag": "HF bar det.", "color": "#ff007f", "badge_color": "#ff007f" },
+        { "id": "hub_btrk_b", "name": "hub_btrk_b", "tag": "bartrack best", "color": "#38bdf8", "badge_color": "#38bdf8" },
+        { "id": "hub_btrk_l", "name": "hub_btrk_l", "tag": "bartrack last", "color": "#a3e635", "badge_color": "#a3e635" },
+        { "id": "hub_smoke", "name": "hub_smoke", "tag": "smoke 10ep", "color": "#f59e0b", "badge_color": "#f59e0b" }
+      ]
+    },
+    {
+      "id": "plates",
+      "name": "Detección de Discos",
+      "badge": "Discos",
+      "question": "¿Cuál detecta con mayor precisión la silueta de los discos?",
+      "hint": "Observa si la caja rodea los discos limpios sin cortar ni marcar fondo falso.",
+      "videos": {
+        "bench": "familias/plates_bench.mp4",
+        "squat": "familias/plates_squat.mp4",
+        "deadlift": "familias/plates_deadlift.mp4"
+      },
+      "candidates": [
+        { "id": "plt_20l", "name": "plt_20l", "tag": "20sep last", "color": "#ff007f", "badge_color": "#ff007f" },
+        { "id": "plt_20b", "name": "plt_20b", "tag": "20sep best", "color": "#00f2fe", "badge_color": "#00f2fe" },
+        { "id": "plt_pw", "name": "plt_pw", "tag": "PowerNZ plate", "color": "#00f59b", "badge_color": "#00f59b" },
+        { "id": "plt_pwl", "name": "plt_pwl", "tag": "PowerNZ last", "color": "#c084fc", "badge_color": "#c084fc" },
+        { "id": "plt_only", "name": "plt_only", "tag": "solo discos", "color": "#ff9f1c", "badge_color": "#ff9f1c" },
+        { "id": "plt_prod", "name": "plt_prod", "tag": "producción", "color": "#60a5fa", "badge_color": "#60a5fa" }
+      ]
+    },
+    {
+      "id": "keypoints",
+      "name": "Esqueleto del Atleta",
+      "badge": "Esqueleto",
+      "question": "¿Qué modelo ubica con mayor precisión las articulaciones?",
+      "hint": "Fíjate en codos, hombros y muñecas durante la fase concéntrica.",
+      "videos": {
+        "bench": "familias/keypoints_bench.mp4",
+        "squat": "familias/keypoints_squat.mp4",
+        "deadlift": "familias/keypoints_deadlift.mp4"
+      },
+      "candidates": [
+        { "id": "kp_20sep", "name": "kp_20sep", "tag": "20sep 12kp", "color": "#00f59b", "badge_color": "#00f59b" },
+        { "id": "kp_skel17", "name": "kp_skel17", "tag": "COCO 17", "color": "#ff9f1c", "badge_color": "#ff9f1c" },
+        { "id": "kp_v3b", "name": "kp_v3b", "tag": "v3 best", "color": "#00f2fe", "badge_color": "#00f2fe" },
+        { "id": "kp_v3l", "name": "kp_v3l", "tag": "v3 last", "color": "#38bdf8", "badge_color": "#38bdf8" },
+        { "id": "kp_old", "name": "kp_old", "tag": "viejo prod", "color": "#facc15", "badge_color": "#facc15" },
+        { "id": "kp_misc", "name": "kp_misc", "tag": "pose misc", "color": "#ff007f", "badge_color": "#ff007f" }
+      ]
+    },
+    {
+      "id": "segmentation",
+      "name": "Segmentación del Atleta",
+      "badge": "Silueta",
+      "question": "¿Qué máscara contornea mejor al atleta sin salirse?",
+      "hint": "Compara qué modelo aísla la silueta limpia sin parpadear en el fondo.",
+      "videos": {
+        "bench": "familias/segmentation_bench.mp4",
+        "squat": "familias/segmentation_squat.mp4",
+        "deadlift": "familias/segmentation_deadlift.mp4"
+      },
+      "candidates": [
+        { "id": "seg_v2b", "name": "seg_v2b", "tag": "v2 best", "color": "#00f2fe", "badge_color": "#00f2fe" },
+        { "id": "seg_v2l", "name": "seg_v2l", "tag": "v2 last", "color": "#00f59b", "badge_color": "#00f59b" },
+        { "id": "seg_v1", "name": "seg_v1", "tag": "v1 prod", "color": "#f87171", "badge_color": "#f87171" },
+        { "id": "seg_pw", "name": "seg_pw", "tag": "HF athlete", "color": "#e2e8f0", "badge_color": "#e2e8f0" }
+      ]
+    }
+  ],
+  "packs": [
+    { "id": "pack_bench", "label": "Press de Banca", "video": "pack/h_banca_bench_pack.mp4" },
+    { "id": "pack_squat", "label": "Sentadilla", "video": "pack/h_squat_squat_pack.mp4" },
+    { "id": "pack_deadlift", "label": "Peso Muerto", "video": "pack/h_muerto_deadlift_pack.mp4" }
+  ]
+}

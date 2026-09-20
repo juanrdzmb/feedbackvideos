@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Model Arena v2 · Votación de Modelos</title>
+  <meta name="description" content="Compara y vota en tiempo real los mejores modelos de visión artificial para tracking de barra, discos y atleta en Powerlifting.">
+  <meta property="og:title" content="Model Arena v2 · Elige los mejores modelos">
+  <meta property="og:description" content="Vota anónimamente cuál versión de IA tiene mejor precisión y seguimiento.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#090b10">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-badge">VBT IA</span>
+        <span class="brand-title">Model Arena v2</span>
+      </div>
+      <div class="header-actions">
+        <button id="header-stats-btn" class="btn-icon" title="Ver Resultados" aria-label="Ver estadísticas">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Exercise Selector Tabs -->
+    <div class="exercise-bar">
+      <div class="exercise-pills" id="exercise-pills">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <!-- Progress & Step Info -->
+    <div class="round-info">
+      <div class="round-badge-group">
+        <span id="round-step-tag" class="round-step-tag">Ronda 1</span>
+        <span id="round-name" class="round-name">Seguimiento de Barra</span>
+      </div>
+      <span id="round-counter" class="round-counter">1 de 4</span>
+    </div>
+
+    <div class="progress-bar-container">
+      <div id="progress-bar-fill" class="progress-bar-fill" style="width: 25%;"></div>
+    </div>
+
+    <!-- MAIN VOTING STAGE -->
+    <main id="round-stage">
+      <!-- Question -->
+      <div class="question-container">
+        <div id="question-text" class="question-text">¿Qué modelo rastrea mejor la barra sin perderla ni saltar a los discos?</div>
+        <div id="question-hint" class="question-hint">Fíjate en la estabilidad de la caja durante el recorrido completo.</div>
+      </div>
+
+      <!-- Video Player Container -->
+      <div class="video-card">
+        <video id="video-player" class="video-player" playsinline webkit-playsinline muted preload="auto">
+          Tu navegador no soporta reproducción de vídeo HTML5.
+        </video>
+
+        <!-- Video Custom Controls Overlay -->
+        <div class="video-overlay">
+          <div class="video-overlay-top">
+            <span id="video-clip-tag" class="video-clip-tag">Barra • Press de Banca</span>
+          </div>
+          <div class="video-overlay-bottom">
+            <button id="btn-play-pause" class="btn-video-ctrl" title="Reproducir / Pausar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </button>
+            <button id="btn-replay" class="btn-video-ctrl" title="Reiniciar Vídeo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+            </button>
+            <div id="video-timeline" class="video-timeline">
+              <div id="video-timeline-fill" class="video-timeline-fill"></div>
+            </div>
+            <span id="video-time-label" class="video-time-label">0:00 / 0:08</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completion Banner (appears when video ends) -->
+      <div id="completion-banner" class="completion-banner" style="display: none;">
+        <div class="completion-banner-text">
+          <span>🎯</span>
+          <span>¡Vídeo terminado! Vota el mejor abajo:</span>
+        </div>
+        <button id="btn-replay-inline" class="btn-replay-inline">↺ Repetir</button>
+      </div>
+
+      <!-- Candidates Interactive Grid -->
+      <div id="voting-grid" class="voting-grid">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <button id="btn-next" class="btn-primary" disabled>
+          Selecciona una opción para continuar
+        </button>
+      </div>
+    </main>
+
+    <!-- FEEDBACK STAGE (Shown after round 4) -->
+    <section id="feedback-stage" style="display: none;">
+      <div class="feedback-card">
+        <h3 class="feedback-title">¡Has completado las 4 rondas! 🏁</h3>
+        <p class="feedback-sub">¿Tienes alguna observación, detalle o sugerencia que quieras dejar sobre los modelos? (opcional y 100% anónimo)</p>
+        <textarea id="feedback-textarea" class="feedback-textarea" placeholder="Ej: Me pareció que el modelo hub_v2l vibraba menos al inicio del despegue..."></textarea>
+      </div>
+      <div class="action-bar">
+        <button id="btn-submit-feedback" class="btn-primary">
+          Enviar Mi Veredicto Final 🚀
+        </button>
+        <button id="btn-skip-feedback" class="btn-secondary">
+          Omitir comentario y finalizar
+        </button>
+      </div>
+    </section>
+
+    <!-- SUCCESS STAGE -->
+    <section id="success-stage" class="success-screen" style="display: none;">
+      <div class="success-icon-badge">✓</div>
+      <h2 class="success-heading">¡Veredicto Registrado!</h2>
+      <p class="success-desc">
+        Muchas gracias por tu tiempo. Tu voto anónimo ayudará a definir qué modelos entran directamente al pipeline de producción.
+      </p>
+
+      <div class="votes-summary-card">
+        <div class="votes-summary-title">Tus Selecciones</div>
+        <div id="votes-summary-list">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <div class="action-bar" style="width: 100%;">
+        <button id="btn-open-stats" class="btn-primary">
+          Ver Resultados en Vivo 📊
+        </button>
+        <button id="btn-open-pack" class="btn-secondary">
+          Ver Pack de Producción 🏆
+        </button>
+        <button id="btn-restart" class="btn-secondary">
+          Votar en otro ejercicio ↺
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL: LIVE STATS & RESULTS -->
+  <div id="modal-stats" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Resultados de la Votación 📊</h3>
+        <button id="btn-close-stats" class="btn-icon">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="stats-container">
+          <!-- Injected via JS -->
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button id="btn-export-csv" class="btn-secondary" style="flex: 1;">
+            Descargar CSV 📥
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PACK DE PRODUCCIÓN -->
+  <div id="modal-pack" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Pack Completo en Producción 🏆</h3>
+        <button id="btn-close-pack" class="btn-icon">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 8px;">
+          Así se ve la combinación de los modelos ganadores trabajando juntos (barra, discos, esqueleto y contorno simultáneos):
+        </p>
+        <div class="exercise-pills" id="pack-tabs" style="margin-bottom: 12px;">
+          <!-- Injected via JS -->
+        </div>
+        <div class="video-card" style="margin-bottom: 8px;">
+          <video id="pack-video-player" class="video-player" controls playsinline></video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/tracker.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
