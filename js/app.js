@@ -18,8 +18,15 @@
     progressBarFill: document.getElementById("progress-bar-fill"),
     questionText: document.getElementById("question-text"),
     questionHint: document.getElementById("question-hint"),
+    videoCard: document.getElementById("video-card"),
     videoPlayer: document.getElementById("video-player"),
     videoClipTag: document.getElementById("video-clip-tag"),
+    videoVotingOverlay: document.getElementById("video-voting-overlay"),
+    overlayCandidatesGrid: document.getElementById("overlay-candidates-grid"),
+    btnOverlayNext: document.getElementById("btn-overlay-next"),
+    btnPeekVideo: document.getElementById("btn-peek-video"),
+    btnQuickVote: document.getElementById("btn-quick-vote"),
+    btnFullscreen: document.getElementById("btn-fullscreen"),
     btnPlayPause: document.getElementById("btn-play-pause"),
     btnReplay: document.getElementById("btn-replay"),
     videoTimeline: document.getElementById("video-timeline"),
@@ -97,6 +104,22 @@
     els.btnReplay.addEventListener("click", replayVideo);
     els.btnReplayInline.addEventListener("click", replayVideo);
 
+    if (els.btnFullscreen) {
+      els.btnFullscreen.addEventListener("click", toggleFullscreen);
+    }
+
+    if (els.btnQuickVote) {
+      els.btnQuickVote.addEventListener("click", openVotingOverlay);
+    }
+
+    if (els.btnPeekVideo) {
+      els.btnPeekVideo.addEventListener("click", togglePeekVideo);
+    }
+
+    if (els.btnOverlayNext) {
+      els.btnOverlayNext.addEventListener("click", handleNextRound);
+    }
+
     els.videoPlayer.addEventListener("timeupdate", updateTimeline);
     els.videoPlayer.addEventListener("ended", onVideoEnded);
     els.videoPlayer.addEventListener("play", () => updatePlayIcon(false));
@@ -150,8 +173,9 @@
     // Video
     loadVideoForCurrentRound();
 
-    // Hide completion banner until video ends
+    // Hide completion banner & overlay until video ends
     els.completionBanner.style.display = "none";
+    closeVotingOverlay();
 
     // Candidates
     renderCandidates(round);
@@ -184,11 +208,15 @@
     }
   }
 
-  // Render Candidates Grid
+  // Render Candidates Grid (Dual: Sobre el vídeo y debajo)
   function renderCandidates(round) {
     els.votingGrid.innerHTML = "";
+    if (els.overlayCandidatesGrid) {
+      els.overlayCandidatesGrid.innerHTML = "";
+    }
 
     round.candidates.forEach((cand) => {
+      // 1. Tarjeta inferior
       const card = document.createElement("div");
       card.className = `candidate-card ${currentSelectedCandidate === cand.id ? "selected" : ""}`;
       card.dataset.id = cand.id;
@@ -209,6 +237,32 @@
       });
 
       els.votingGrid.appendChild(card);
+
+      // 2. Botón cómodo directamente sobre el vídeo (In-Video Floating Overlay)
+      if (els.overlayCandidatesGrid) {
+        const btn = document.createElement("div");
+        btn.className = `overlay-cand-btn ${currentSelectedCandidate === cand.id ? "selected" : ""}`;
+        btn.dataset.id = cand.id;
+
+        btn.innerHTML = `
+          <div style="display: flex; align-items: center;">
+            <span class="overlay-cand-dot" style="background-color: ${cand.color}; box-shadow: 0 0 10px ${cand.color};"></span>
+            <div class="overlay-cand-info">
+              <span class="overlay-cand-name">${cand.name}</span>
+              <span class="overlay-cand-tag">${cand.tag}</span>
+            </div>
+          </div>
+          <span class="overlay-check" style="font-size: 1rem; font-weight: bold; color: ${currentSelectedCandidate === cand.id ? 'var(--accent-cyan)' : 'var(--text-dim)'};">
+            ${currentSelectedCandidate === cand.id ? '✓' : '○'}
+          </span>
+        `;
+
+        btn.addEventListener("click", () => {
+          selectCandidate(cand.id);
+        });
+
+        els.overlayCandidatesGrid.appendChild(btn);
+      }
     });
   }
 
@@ -218,7 +272,7 @@
     const round = arenaData.rounds[currentRoundIndex];
     userVotes[round.id] = modelId;
 
-    // Update UI cards
+    // Actualizar tarjetas inferiores
     const cards = els.votingGrid.querySelectorAll(".candidate-card");
     cards.forEach((c) => {
       if (c.dataset.id === modelId) {
@@ -228,9 +282,30 @@
       }
     });
 
+    // Actualizar botones sobre el vídeo
+    if (els.overlayCandidatesGrid) {
+      const overlayBtns = els.overlayCandidatesGrid.querySelectorAll(".overlay-cand-btn");
+      overlayBtns.forEach((b) => {
+        const check = b.querySelector(".overlay-check");
+        if (b.dataset.id === modelId) {
+          b.classList.add("selected");
+          if (check) {
+            check.textContent = "✓";
+            check.style.color = "var(--accent-cyan)";
+          }
+        } else {
+          b.classList.remove("selected");
+          if (check) {
+            check.textContent = "○";
+            check.style.color = "var(--text-dim)";
+          }
+        }
+      });
+    }
+
     updateNextButtonState();
 
-    // Light tactile feedback if available
+    // Retroalimentación háptica en móviles si está disponible
     if (navigator.vibrate) {
       try { navigator.vibrate(15); } catch (e) {}
     }
@@ -238,15 +313,74 @@
 
   // Next Button State
   function updateNextButtonState() {
+    const isLast = currentRoundIndex === arenaData.rounds.length - 1;
+    const nextHtml = isLast
+      ? 'Revisar y Finalizar Voto <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>'
+      : 'Siguiente Ronda <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+
     if (currentSelectedCandidate) {
       els.btnNext.disabled = false;
-      const isLast = currentRoundIndex === arenaData.rounds.length - 1;
-      els.btnNext.innerHTML = isLast
-        ? 'Revisar y Finalizar Voto <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>'
-        : 'Siguiente Ronda <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+      els.btnNext.innerHTML = nextHtml;
+
+      if (els.btnOverlayNext) {
+        els.btnOverlayNext.disabled = false;
+        els.btnOverlayNext.innerHTML = nextHtml;
+      }
     } else {
       els.btnNext.disabled = true;
       els.btnNext.innerHTML = 'Selecciona una opción para continuar';
+
+      if (els.btnOverlayNext) {
+        els.btnOverlayNext.disabled = true;
+        els.btnOverlayNext.innerHTML = 'Elige un modelo arriba';
+      }
+    }
+  }
+
+  // Overlay Controls
+  function openVotingOverlay() {
+    if (els.videoVotingOverlay) {
+      els.videoVotingOverlay.classList.add("active");
+    }
+    if (els.btnPeekVideo) {
+      els.btnPeekVideo.textContent = "👁️ Ver vídeo";
+    }
+  }
+
+  function closeVotingOverlay() {
+    if (els.videoVotingOverlay) {
+      els.videoVotingOverlay.classList.remove("active");
+    }
+    if (els.btnPeekVideo) {
+      els.btnPeekVideo.textContent = "🗳️ Votar";
+    }
+  }
+
+  function togglePeekVideo() {
+    if (els.videoVotingOverlay && els.videoVotingOverlay.classList.contains("active")) {
+      closeVotingOverlay();
+    } else {
+      openVotingOverlay();
+    }
+  }
+
+  // Fullscreen Handler (Pantalla Grande)
+  function toggleFullscreen() {
+    const target = els.videoCard || els.videoPlayer;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (target.requestFullscreen) {
+        target.requestFullscreen();
+      } else if (target.webkitRequestFullscreen) {
+        target.webkitRequestFullscreen();
+      } else if (els.videoPlayer.webkitEnterFullscreen) {
+        els.videoPlayer.webkitEnterFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
     }
   }
 
@@ -260,6 +394,7 @@
   }
 
   function replayVideo() {
+    closeVotingOverlay();
     els.videoPlayer.currentTime = 0;
     els.videoPlayer.play();
     els.completionBanner.style.display = "none";
@@ -293,10 +428,7 @@
   function onVideoEnded() {
     updatePlayIcon(true);
     els.completionBanner.style.display = "flex";
-    // If user hasn't selected an option yet, subtly pulse the grid
-    if (!currentSelectedCandidate) {
-      els.votingGrid.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
+    openVotingOverlay();
   }
 
   function formatTime(secs) {
@@ -309,6 +441,8 @@
   // Handle Next Round
   function handleNextRound() {
     if (!currentSelectedCandidate) return;
+
+    closeVotingOverlay();
 
     if (currentRoundIndex < arenaData.rounds.length - 1) {
       renderRound(currentRoundIndex + 1);
